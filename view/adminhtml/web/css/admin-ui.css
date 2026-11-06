@@ -1,0 +1,1498 @@
+/**
+ * Copyright (c) 2026. Volodymyr Hryvinskyi. All rights reserved.
+ * Author: Volodymyr Hryvinskyi <volodymyr@hryvinskyi.com>
+ * GitHub: https://github.com/hryvinskyi
+ */
+
+/*
+ * The admin UI kit: one look for admin screens, built from small components a module composes in its own markup.
+ *
+ * Every class starts with `hui-`. A base component class is a single class (`.hui-button`, `.hui-card`), so a page
+ * rule of the same weight that comes later overrides it by order alone. Tones and states can weigh more, up to four (a
+ * class plus an attribute or a pseudo-class, as in `[data-tone='warning'].hui-notice`): a consumer restyles a tone or
+ * a state through its tokens rather than by out-weighing the selector. Only the tokens and the base
+ * rules hang on a root class:
+ * - `.hui` carries the tokens and the base rules (typeface, box-sizing, the admin-theme button resets, the focus ring,
+ *   headings, `[hidden]`). It goes on the element that encloses everything a module wants styled.
+ * - `.hui-tokens` carries the tokens alone. It wraps markup the module does not own, such as a Magento UI listing,
+ *   whose buttons and controls keep the admin theme's own behaviour while its skin reads the tokens.
+ *
+ * Every colour, radius, shadow and font stack is a custom property (`--hui-*`), declared on the outermost kit root of
+ * a page, so a module restyles the kit by overriding the properties alone, and a root nested inside another inherits
+ * the overrides instead of resetting them. The declaration has no weight of its own: any rule that sets a property
+ * wins over it.
+ *
+ * A page opts in with the layout handle `<update handle="hryvinskyi_admin_ui"/>` and the root class; no page loads
+ * the kit without asking.
+ *
+ * Sections: typeface · tokens and base · buttons and links · cards, panels, columns · layout (stack, grid, actions)
+ * · messages · fields · controls · badges · status panel · code · list · facts · disclosure · hidden.
+ *
+ * The typeface, Source Sans 3 (SIL Open Font License 1.1, the text beside the files), is served from the module's own
+ * static files: the latin subset in three weights, so the admin never asks a font service. Any glyph outside the
+ * subset falls back to the next family in the stack.
+ */
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Typeface
+ * ------------------------------------------------------------------------------------------------------------ */
+
+@font-face {
+    font-family: 'Source Sans 3';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/source-sans-3/source-sans-3-latin-400-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Source Sans 3';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../fonts/source-sans-3/source-sans-3-latin-600-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Source Sans 3';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/source-sans-3/source-sans-3-latin-700-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Tokens and base
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/* The outermost kit root of the page; `:where()` keeps the declaration at no weight, so any override wins. */
+:where(.hui, .hui-tokens):not(:where(.hui, .hui-tokens) *) {
+    --hui-font: 'Source Sans 3', 'Open Sans', Helvetica, Arial, sans-serif;
+    --hui-mono: Menlo, Consolas, 'Liberation Mono', monospace;
+
+    --hui-ink: #2c2c2c;
+    --hui-ink-strong: #2c2c2c;
+    --hui-ink-soft: #4b4b4b;
+    --hui-muted: #6b6b6b;
+    --hui-faint: #8a8a8a;
+    --hui-disabled-ink: #7a7a7a;
+    --hui-on-accent: #ffffff;
+
+    --hui-surface: #ffffff;
+    --hui-canvas: #f5f5f5;
+    --hui-subtle: #fafafa;
+    --hui-well: #f7f7f7;
+    --hui-neutral: #f1f1f1;
+    --hui-field-disabled: #f3f3f3;
+    --hui-select-disabled: #f0f0f0;
+
+    --hui-line: #e3e3e3;
+    --hui-line-faint: #f0f0f0;
+    --hui-line-mid: #d6d6d6;
+    --hui-line-strong: #adadad;
+
+    --hui-accent: #1e6fd9;
+    --hui-accent-hover: #1559b3;
+    --hui-accent-hover-line: #1559b3;
+    --hui-accent-ink: #1559b3;
+    --hui-accent-bg: #f5f9fe;
+    --hui-accent-tile: #e8f0fc;
+
+    --hui-own-bg: #eef4fd;
+    --hui-own-line: #b9d2f5;
+    --hui-own-ink: #134a9a;
+
+    --hui-ok: #2d9d78;
+    --hui-ok-dot: #2d9d78;
+    --hui-ok-ink: #12805c;
+    --hui-ok-bg: #e6f5ef;
+    --hui-ok-line: #a8dcc6;
+
+    --hui-warn: #c07600;
+    --hui-warn-ink: #8a5300;
+    --hui-warn-bg: #fff8db;
+    --hui-warn-line: #f0d77a;
+
+    --hui-error: #e22626;
+    --hui-error-ink: #c41a1a;
+    --hui-error-bg: #fdeeee;
+    --hui-error-line: #f1c0c0;
+
+    --hui-focus: #007bdb;
+    --hui-focus-glow: #68a8e0;
+    --hui-link: #007bdb;
+
+    --hui-button-line: #b3b3b3;
+    --hui-button-hover: #f0f0f0;
+    --hui-button-hover-line: #8e8e8e;
+    --hui-switch-on: #1e6fd9;
+    --hui-switch-on-disabled: #a9c8f0;
+    --hui-switch-off: #d6d6d6;
+    --hui-switch-off-line: #b3b3b3;
+
+    --hui-code-bg: #2b2724;
+    --hui-code-ink: #ede7e1;
+    --hui-code-muted: #bdb5ad;
+    --hui-code-line: #403a35;
+
+    --hui-radius-card: 8px;
+    --hui-radius-box: 6px;
+    --hui-radius-control: 4px;
+    --hui-radius-pill: 16px;
+
+    --hui-shadow-card: 0 1px 2px rgba(0, 0, 0, .05);
+    --hui-shadow-knob: 0 1px 2px rgba(0, 0, 0, .3);
+}
+
+.hui {
+    font-family: var(--hui-font);
+    color: var(--hui-ink);
+}
+
+.hui *,
+.hui *::before,
+.hui *::after {
+    box-sizing: border-box;
+}
+
+.hui-icon {
+    flex: none;
+    fill: currentColor;
+    vertical-align: middle;
+}
+
+.hui-icon--14 { width: 14px; height: 14px; }
+.hui-icon--16 { width: 16px; height: 16px; }
+.hui-icon--18 { width: 18px; height: 18px; }
+.hui-icon--20 { width: 20px; height: 20px; }
+.hui-icon--22 { width: 22px; height: 22px; }
+.hui-icon--24 { width: 24px; height: 24px; }
+.hui-icon--26 { width: 26px; height: 26px; }
+.hui-icon--28 { width: 28px; height: 28px; }
+.hui-icon--30 { width: 30px; height: 30px; }
+
+.hui-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* The admin theme gives every button a shadow on hover, focus and press; the kit's buttons draw their own states. */
+.hui button,
+.hui button:hover,
+.hui button:focus,
+.hui button:active {
+    box-shadow: none;
+    text-shadow: none;
+}
+
+/*
+ * The admin theme also repaints every button's background and text on hover, focus and press. The switch keeps the
+ * colours of its resting state there.
+ */
+.hui-switch:is(:hover, :focus, :active) {
+    background: transparent;
+    color: var(--hui-ink);
+}
+
+.hui :focus-visible {
+    outline: 2px solid var(--hui-focus);
+    outline-offset: 2px;
+}
+
+.hui h1,
+.hui h2,
+.hui h3 {
+    font-family: var(--hui-font);
+    letter-spacing: normal;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Buttons and links
+ * ------------------------------------------------------------------------------------------------------------ */
+
+.hui-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--hui-font);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    border-radius: var(--hui-radius-pill);
+    cursor: pointer;
+}
+
+.hui-button:hover {
+    text-decoration: none;
+}
+
+.hui-button:disabled {
+    opacity: .5;
+    cursor: default;
+}
+
+/* A busy button keeps its place in the focus order; it only shows that it is working. */
+.hui-button[aria-busy='true'] {
+    cursor: progress;
+}
+
+.hui-button--primary {
+    padding: 9px 14px 9px 20px;
+    background: var(--hui-accent);
+    border: 2px solid var(--hui-accent);
+}
+
+/*
+ * The admin theme repaints every button's background and text on hover, focus and press; each variant keeps its
+ * own colours there, and only a hover on an enabled button draws the variant's hover colours.
+ */
+.hui-button--primary,
+.hui-button--primary:hover,
+.hui-button--primary:focus,
+.hui-button--primary:active {
+    background: var(--hui-accent);
+    color: var(--hui-on-accent);
+}
+
+.hui-button--primary:hover:not(:disabled) {
+    background: var(--hui-accent-hover);
+    border-color: var(--hui-accent-hover-line);
+}
+
+.hui-button--secondary {
+    padding: 8px 14px;
+    border: 2px solid var(--hui-button-line);
+}
+
+.hui-button--secondary:hover:not(:disabled) {
+    background: var(--hui-button-hover);
+    border-color: var(--hui-button-hover-line);
+}
+
+.hui-button--tertiary {
+    padding: 6px 14px;
+    font-size: 13px;
+    border: 2px solid var(--hui-button-line);
+}
+
+.hui-button--tertiary:hover:not(:disabled) {
+    background: var(--hui-canvas);
+}
+
+.hui-button--quiet {
+    padding: 8px 12px;
+    border: 1px solid var(--hui-line-mid);
+    border-radius: var(--hui-radius-box);
+}
+
+.hui-button--secondary,
+.hui-button--secondary:hover,
+.hui-button--secondary:focus,
+.hui-button--secondary:active,
+.hui-button--tertiary,
+.hui-button--tertiary:hover,
+.hui-button--tertiary:focus,
+.hui-button--tertiary:active {
+    background: var(--hui-surface);
+    color: var(--hui-ink);
+}
+
+.hui-button--quiet,
+.hui-button--quiet:hover,
+.hui-button--quiet:focus,
+.hui-button--quiet:active {
+    background: var(--hui-surface);
+    color: var(--hui-ink-soft);
+}
+
+.hui-button--quiet:hover:not(:disabled) {
+    background: var(--hui-canvas);
+}
+
+/*
+ * A button in a row of fields: the fields' height, border width and radius, so it lines up with the input or select
+ * beside it. The variant it is combined with keeps its colours, border colour included
+ * (`hui-button hui-button--secondary hui-button--control`).
+ */
+.hui-button--control {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 14px;
+    border-width: 1px;
+    border-radius: var(--hui-radius-control);
+}
+
+.hui-button--link {
+    gap: 4px;
+    padding: 0;
+    font-size: 12px;
+    border: 0;
+    border-radius: 0;
+}
+
+.hui-button--link,
+.hui-button--link:hover,
+.hui-button--link:focus,
+.hui-button--link:active {
+    background: none;
+    color: var(--hui-link);
+}
+
+.hui-button--link:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+/* A link drawn as a button keeps its variant's text colour against the admin theme's link colours. */
+.hui-button--anchor.hui-button--primary:is(:link, :visited, :hover, :focus, :active) {
+    color: var(--hui-on-accent);
+}
+
+.hui-button--anchor.hui-button--secondary:is(:link, :visited, :hover, :focus, :active),
+.hui-button--anchor.hui-button--tertiary:is(:link, :visited, :hover, :focus, :active) {
+    color: var(--hui-ink);
+}
+
+.hui-button--anchor.hui-button--quiet:is(:link, :visited, :hover, :focus, :active) {
+    color: var(--hui-ink-soft);
+}
+
+/*
+ * A control that shows or hides a part of the card: a link button that toggles a region, or a native
+ * <details> (see "Disclosure" below).
+ */
+.hui-disclosure {
+    align-self: flex-start;
+    font-size: 13px;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Cards, panels, columns
+ * ------------------------------------------------------------------------------------------------------------ */
+
+.hui-card,
+.hui-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--hui-surface);
+    border: 1px solid var(--hui-line);
+    border-radius: var(--hui-radius-card);
+    box-shadow: var(--hui-shadow-card);
+}
+
+.hui-card__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--hui-line-faint);
+}
+
+.hui-card__tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--hui-accent-tile);
+    color: var(--hui-accent-ink);
+    border-radius: var(--hui-radius-card);
+}
+
+.hui-card__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--hui-ink);
+}
+
+/* A title with a line under it, beside the tile: the head's divider stays the card's own. */
+.hui-card__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+/* A muted line that says what the card holds; under the title in `hui-card__heading`, or after it on one line. */
+.hui-card__subtitle {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--hui-muted);
+}
+
+.hui-card__aside {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.hui-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 18px 22px 22px;
+}
+
+.hui-panel__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--hui-line-faint);
+}
+
+.hui-panel__icon {
+    color: var(--hui-accent-ink);
+}
+
+.hui-panel__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: var(--hui-ink-soft);
+}
+
+.hui-panel__body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+}
+
+/* A main column beside a narrow aside; one column below 900px (see "Layout"). */
+.hui-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 24px;
+    align-items: start;
+}
+
+.hui-columns--single {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.hui-columns__main,
+.hui-columns__aside {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Layout: stack, grid and actions
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/* Cards one under another, with the kit's vertical rhythm between them. */
+.hui-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+/* Two equal columns of cards; an item marked `hui-grid__full` spans both. */
+.hui-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+.hui-grid__full {
+    grid-column: 1 / -1;
+}
+
+/* Buttons, links or small controls in one row that wraps when the width runs out. */
+.hui-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+}
+
+/* Below 900px of viewport every multi-column layout of the kit falls to one column. */
+@media (max-width: 900px) {
+    .hui-columns,
+    .hui-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Messages
+ * ------------------------------------------------------------------------------------------------------------ */
+
+.hui-strip,
+.hui-notice {
+    display: flex;
+    gap: 12px;
+    background: var(--hui-surface);
+    border: 1px solid var(--hui-line);
+    border-radius: var(--hui-radius-box);
+    color: var(--hui-ink);
+}
+
+.hui-strip {
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.hui-strip__text {
+    flex: 1;
+    min-width: 240px;
+}
+
+.hui-notice {
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.hui-notice__text {
+    flex: 1;
+    min-width: 0;
+}
+
+.hui-notice__action {
+    flex: none;
+    align-self: center;
+}
+
+.hui-strip__icon,
+.hui-notice__icon {
+    color: var(--hui-muted);
+}
+
+[data-tone='success'].hui-strip,
+[data-tone='success'].hui-notice {
+    background: var(--hui-ok-bg);
+    border-color: var(--hui-ok-line);
+}
+
+[data-tone='success'] > .hui-strip__icon,
+[data-tone='success'] > .hui-notice__icon {
+    color: var(--hui-ok);
+}
+
+[data-tone='warning'].hui-strip,
+[data-tone='warning'].hui-notice {
+    background: var(--hui-warn-bg);
+    border-color: var(--hui-warn-line);
+}
+
+[data-tone='warning'] > .hui-strip__icon,
+[data-tone='warning'] > .hui-notice__icon {
+    color: var(--hui-warn);
+}
+
+[data-tone='error'].hui-strip,
+[data-tone='error'].hui-notice {
+    background: var(--hui-error-bg);
+    border-color: var(--hui-error-line);
+}
+
+[data-tone='error'] > .hui-strip__icon,
+[data-tone='error'] > .hui-notice__icon {
+    color: var(--hui-error);
+}
+
+/* An informational notice among fields on a grey ground: something that is true but asks for nothing. */
+.hui-notice--muted {
+    background: var(--hui-canvas);
+    color: var(--hui-ink-strong);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Fields
+ * ------------------------------------------------------------------------------------------------------------ */
+
+.hui-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.hui-field__head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.hui-field__label {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--hui-ink);
+}
+
+.hui-field__tag {
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    background: var(--hui-neutral);
+    color: var(--hui-muted);
+}
+
+.hui-field__help {
+    max-width: 540px;
+    margin-top: -3px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--hui-muted);
+    text-wrap: pretty;
+}
+
+.hui-field__error {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--hui-error);
+}
+
+/* Where a value comes from, with its action: under a field's control, or in a card's or table's head. */
+.hui-origin-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    font-size: 12px;
+}
+
+.hui-origin {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 1px 8px 1px 6px;
+    line-height: 1.6;
+    background: var(--hui-canvas);
+    border: 1px solid var(--hui-line);
+    border-radius: var(--hui-radius-box);
+    color: var(--hui-ink-soft);
+}
+
+.hui-origin--own {
+    background: var(--hui-own-bg);
+    border-color: var(--hui-own-line);
+    color: var(--hui-own-ink);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Controls
+ * ------------------------------------------------------------------------------------------------------------ */
+
+.hui-input-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.hui-input {
+    height: 34px;
+    max-width: 100%;
+    padding: 0 10px;
+    font-family: var(--hui-font);
+    font-size: 14px;
+    color: var(--hui-ink);
+    background: var(--hui-surface);
+    border: 1px solid var(--hui-line-strong);
+    border-radius: var(--hui-radius-control);
+    outline: none;
+}
+
+.hui-input--mono {
+    font-family: var(--hui-mono);
+}
+
+.hui-input:focus {
+    border-color: var(--hui-focus);
+    box-shadow: 0 0 3px 1px var(--hui-focus-glow);
+}
+
+.hui-input:focus-visible {
+    outline: none;
+}
+
+.hui-input[aria-invalid='true'] {
+    border-color: var(--hui-error);
+}
+
+.hui-input:disabled,
+.hui-input--masked {
+    background: var(--hui-field-disabled);
+    color: var(--hui-disabled-ink);
+}
+
+.hui-input--short { width: 90px; }
+.hui-input--medium { width: 240px; }
+.hui-input--long { width: 340px; }
+.hui-input--full { width: 100%; }
+.hui-input--auto { width: auto; }
+
+.hui-input-row__suffix {
+    font-size: 14px;
+}
+
+.hui-input-row__note {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--hui-muted);
+}
+
+.hui-select {
+    position: relative;
+    max-width: 100%;
+}
+
+.hui-select--short { width: 90px; }
+.hui-select--medium { width: 240px; }
+.hui-select--long { width: 340px; }
+.hui-select--full { width: 100%; }
+.hui-select--auto { width: auto; }
+
+.hui-select__control {
+    width: 100%;
+    height: 34px;
+    padding: 0 36px 0 10px;
+    font-family: var(--hui-font);
+    font-size: 14px;
+    color: var(--hui-ink);
+    background: var(--hui-surface);
+    border: 1px solid var(--hui-line-strong);
+    border-radius: var(--hui-radius-control);
+    appearance: none;
+    cursor: pointer;
+}
+
+.hui-select--strong .hui-select__control {
+    padding-right: 40px;
+    font-weight: 600;
+}
+
+.hui-select__control:focus {
+    border-color: var(--hui-focus);
+    box-shadow: 0 0 3px 1px var(--hui-focus-glow);
+    outline: none;
+}
+
+.hui-select__control[aria-invalid='true'] {
+    border-color: var(--hui-error);
+}
+
+.hui-select__control:disabled {
+    background: var(--hui-field-disabled);
+    color: var(--hui-disabled-ink);
+    cursor: default;
+}
+
+.hui-select__chevron {
+    position: absolute;
+    top: 7px;
+    right: 8px;
+    pointer-events: none;
+}
+
+.hui-select--compact .hui-select__control {
+    height: 28px;
+    padding: 0 6px;
+    font-size: 13px;
+    appearance: auto;
+}
+
+.hui-select--compact .hui-select__control:disabled {
+    background: var(--hui-select-disabled);
+    color: var(--hui-faint);
+}
+
+/* Switch */
+
+.hui-switch {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px;
+    background: none;
+    border: 0;
+    font-family: var(--hui-font);
+    color: var(--hui-ink);
+    cursor: pointer;
+}
+
+.hui-switch:disabled {
+    opacity: .6;
+    cursor: default;
+}
+
+.hui-switch__track {
+    position: relative;
+    flex: none;
+    width: 40px;
+    height: 22px;
+    background: var(--hui-switch-off);
+    border: 1px solid var(--hui-switch-off-line);
+    border-radius: 11px;
+}
+
+.hui-switch__knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: var(--hui-surface);
+    border-radius: 50%;
+    box-shadow: var(--hui-shadow-knob);
+}
+
+.hui-switch[aria-checked='true'] .hui-switch__track {
+    background: var(--hui-switch-on);
+    border-color: var(--hui-switch-on);
+}
+
+.hui-switch:disabled[aria-checked='true'] .hui-switch__track {
+    background: var(--hui-switch-on-disabled);
+    border-color: var(--hui-switch-on-disabled);
+}
+
+.hui-switch[aria-checked='true'] .hui-switch__knob {
+    left: 20px;
+}
+
+.hui-switch__text {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.hui-switch--small .hui-switch__track {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+}
+
+.hui-switch--small .hui-switch__knob {
+    width: 14px;
+    height: 14px;
+}
+
+.hui-switch--small[aria-checked='true'] .hui-switch__knob {
+    left: 18px;
+}
+
+.hui-switch--small .hui-switch__text {
+    font-size: 13px;
+}
+
+/* Radio cards and plain radios */
+
+.hui-radios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+}
+
+.hui-radios--column {
+    flex-direction: column;
+}
+
+.hui-radios--row {
+    flex-direction: row;
+}
+
+.hui-radios[aria-disabled='true'] {
+    opacity: .6;
+}
+
+.hui-radio {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    min-width: 0;
+    margin: 0;
+    padding: 2px 0;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.hui-radios[aria-disabled='true'] .hui-radio {
+    cursor: default;
+}
+
+/* One option out of reach while the others are not (a group that is out of reach as a whole is dimmed once). */
+.hui-radios:not([aria-disabled='true']) .hui-radio[data-disabled='true'] {
+    opacity: .6;
+    cursor: default;
+}
+
+.hui-radio__text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hui-radio__label {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    font-size: 14px;
+}
+
+.hui-radio__description {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--hui-muted);
+    text-wrap: pretty;
+}
+
+.hui-radio__input {
+    flex: none;
+    order: -1;
+    width: 16px;
+    height: 16px;
+    margin: 2px 0 0;
+    accent-color: var(--hui-accent);
+}
+
+.hui-radios--cards .hui-radio {
+    padding: 12px 14px;
+    background: transparent;
+    border: 1px solid var(--hui-line-mid);
+    border-radius: var(--hui-radius-box);
+}
+
+.hui-radios--cards .hui-radio__label {
+    font-weight: 600;
+}
+
+.hui-radios--cards .hui-radio__input {
+    order: 3;
+}
+
+.hui-radios--cards .hui-radio[data-checked='true'] {
+    background: var(--hui-accent-bg);
+    border: 2px solid var(--hui-accent);
+}
+
+.hui-radio__tile {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--hui-canvas);
+    color: var(--hui-ink-soft);
+    border-radius: var(--hui-radius-card);
+}
+
+.hui-radio[data-checked='true'] .hui-radio__tile {
+    background: var(--hui-accent);
+    color: var(--hui-on-accent);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Badges
+ * ------------------------------------------------------------------------------------------------------------ */
+
+.hui-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    background: var(--hui-canvas);
+    border: 1px solid var(--hui-line);
+    border-radius: var(--hui-radius-box);
+    color: var(--hui-ink-soft);
+    white-space: nowrap;
+}
+
+.hui-badge--source {
+    padding-left: 6px;
+}
+
+.hui-badge--fixed {
+    padding: 3px 8px 3px 6px;
+    border-style: dashed;
+    border-color: var(--hui-line-strong);
+}
+
+.hui-badge--override {
+    background: var(--hui-own-bg);
+    border-color: var(--hui-own-line);
+    color: var(--hui-own-ink);
+}
+
+/* A state as a dot and a word: on (green), off (grey), or on with a reservation (the warning tone). */
+.hui-badge--on,
+.hui-badge--off,
+.hui-badge--warn {
+    gap: 5px;
+    border: 0;
+    border-radius: 11px;
+}
+
+.hui-badge--on {
+    background: var(--hui-ok-bg);
+    color: var(--hui-ok-ink);
+}
+
+.hui-badge--off {
+    background: var(--hui-neutral);
+    color: var(--hui-muted);
+}
+
+.hui-badge--warn {
+    background: var(--hui-warn-bg);
+    color: var(--hui-warn-ink);
+}
+
+.hui-badge__dot {
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    border-radius: 50%;
+}
+
+.hui-badge--recommended {
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--hui-ok);
+    border: 0;
+    border-radius: 9px;
+    color: var(--hui-on-accent);
+}
+
+.hui-badge--code {
+    font-family: var(--hui-mono);
+    font-weight: 400;
+    color: var(--hui-ink);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Status panel
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/* One state, drawn in three places: the tile, the word and the dot; `data-state` picks it. */
+.hui-status {
+    --hui-status-dot: var(--hui-faint);
+    --hui-status-tile: var(--hui-neutral);
+    --hui-status-word: var(--hui-ink-soft);
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.hui-status[data-state='ok'] {
+    --hui-status-dot: var(--hui-ok-dot);
+    --hui-status-tile: var(--hui-ok-bg);
+    --hui-status-word: var(--hui-ok-ink);
+}
+
+.hui-status[data-state='invalid'] {
+    --hui-status-dot: var(--hui-error);
+    --hui-status-tile: var(--hui-error-bg);
+    --hui-status-word: var(--hui-error-ink);
+}
+
+.hui-status__summary {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.hui-status__tile {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--hui-status-tile);
+    color: var(--hui-status-dot);
+    border-radius: 50%;
+}
+
+.hui-status__words {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.hui-status__word {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--hui-status-word);
+}
+
+.hui-status__note {
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--hui-muted);
+}
+
+.hui-status__line {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.hui-status__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--hui-muted);
+}
+
+.hui-status__box {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 8px 10px;
+    background: var(--hui-well);
+    border: 1px solid var(--hui-line);
+    border-radius: var(--hui-radius-box);
+}
+
+.hui-status__dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    margin-top: 5px;
+    background: var(--hui-status-dot);
+    border-radius: 50%;
+}
+
+.hui-status__text {
+    font-family: var(--hui-mono);
+    font-size: 12px;
+    line-height: 1.5;
+    word-break: break-all;
+    color: var(--hui-ink);
+}
+
+.hui-status__text[data-tone='muted'] {
+    color: var(--hui-faint);
+}
+
+.hui-status__text[data-tone='error'] {
+    color: var(--hui-error-ink);
+}
+
+.hui-status .hui-button--secondary {
+    align-self: flex-start;
+    padding: 7px 12px;
+    font-size: 13px;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Code
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A dark block for a command or a configuration. The text never wraps and scrolls inside the block, so a long line
+ * never widens the page. Buttons in `hui-code__actions` sit in the block's top right corner, beside the text rather
+ * than over it.
+ */
+.hui-code {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    min-width: 0;
+    max-width: 100%;
+    background: var(--hui-code-bg);
+    border: 1px solid var(--hui-code-line);
+    border-radius: var(--hui-radius-box);
+    color: var(--hui-code-ink);
+    color-scheme: dark;
+}
+
+.hui-code__block {
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 12px 16px;
+    overflow-x: auto;
+    font-family: var(--hui-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre;
+    tab-size: 4;
+    background: none;
+    border: 0;
+    color: inherit;
+}
+
+.hui-code__block code {
+    padding: 0;
+    font: inherit;
+    white-space: inherit;
+    background: none;
+    border: 0;
+    color: inherit;
+}
+
+/* A shell prompt in front of a command: drawn, but left out of a selection or a copy. */
+.hui-code__prompt {
+    color: var(--hui-code-muted);
+    user-select: none;
+}
+
+.hui-code__actions {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 6px 6px 0 0;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * List
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A plain list of rows: a title with muted meta on the left, badges and an action on the right. Put directly in a
+ * card (not in its body) the rows run edge to edge with the card's own padding.
+ */
+.hui-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hui-list__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 20px;
+    margin: 0;
+    padding: 14px 22px;
+}
+
+.hui-list__row + .hui-list__row {
+    border-top: 1px solid var(--hui-line-faint);
+}
+
+/* A row whose thing is switched off or out of use: grey ground, muted title. */
+.hui-list__row--muted {
+    background: var(--hui-subtle);
+}
+
+.hui-list__row--muted .hui-list__title {
+    color: var(--hui-muted);
+}
+
+.hui-list__main {
+    flex: 1 1 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.hui-list__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--hui-ink);
+    overflow-wrap: anywhere;
+}
+
+.hui-list__meta {
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--hui-muted);
+    overflow-wrap: anywhere;
+}
+
+.hui-list__aside {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin-left: auto;
+}
+
+.hui-list__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Facts
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A <dl class="hui-facts"> of label and value pairs, each pair a `hui-facts__item` box holding one
+ * `hui-facts__label` (<dt>) and one `hui-facts__value` (<dd>). The boxes fill the row and wrap as the width runs out.
+ */
+.hui-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+}
+
+.hui-facts__item {
+    min-width: 0;
+    padding: 10px 14px;
+    border: 1px solid var(--hui-line);
+    border-radius: var(--hui-radius-box);
+}
+
+.hui-facts__label {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--hui-muted);
+}
+
+.hui-facts__value {
+    margin: 2px 0 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--hui-ink-strong);
+    overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Disclosure
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A native <details class="hui-disclosure"> with a <summary class="hui-disclosure__summary"> and a
+ * `hui-disclosure__body`. The browser keeps the open state, the keyboard and the announcement; the kit draws a
+ * chevron that turns when the part is open. `hui-disclosure--boxed` frames the whole part, summary and body.
+ */
+:where(details).hui-disclosure {
+    align-self: stretch;
+}
+
+.hui-disclosure__summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--hui-link);
+    border-radius: var(--hui-radius-control);
+    list-style: none;
+    cursor: pointer;
+}
+
+.hui-disclosure__summary::-webkit-details-marker {
+    display: none;
+}
+
+.hui-disclosure__summary::before {
+    content: '';
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform .15s ease;
+}
+
+.hui-disclosure[open] > .hui-disclosure__summary::before {
+    transform: rotate(45deg);
+}
+
+.hui-disclosure__body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 12px;
+}
+
+.hui-disclosure--boxed {
+    font-size: 14px;
+    background: var(--hui-surface);
+    border: 1px solid var(--hui-line);
+    border-radius: var(--hui-radius-box);
+}
+
+.hui-disclosure--boxed > .hui-disclosure__summary {
+    display: flex;
+    padding: 12px 16px;
+    color: var(--hui-ink);
+    border-radius: var(--hui-radius-box);
+}
+
+.hui-disclosure--boxed > .hui-disclosure__summary:hover {
+    background: var(--hui-subtle);
+}
+
+.hui-disclosure--boxed > .hui-disclosure__summary::before {
+    color: var(--hui-muted);
+}
+
+.hui-disclosure--boxed[open] > .hui-disclosure__summary {
+    border-radius: var(--hui-radius-box) var(--hui-radius-box) 0 0;
+}
+
+.hui-disclosure--boxed > .hui-disclosure__body {
+    padding: 16px;
+    border-top: 1px solid var(--hui-line-faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hui-disclosure__summary::before {
+        transition: none;
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Hidden
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * Kit components set `display` on a class, and a class beats the browser's own `[hidden]` rule. This rule, last in
+ * the file and one class heavier than a component, puts `hidden` back in charge inside a `.hui` root, so a page can
+ * show and hide server-rendered parts with the attribute alone.
+ */
+.hui [hidden] {
+    display: none;
+}

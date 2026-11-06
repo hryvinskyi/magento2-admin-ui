@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) 2026. Volodymyr Hryvinskyi. All rights reserved.
+ * Author: Volodymyr Hryvinskyi <volodymyr@hryvinskyi.com>
+ * GitHub: https://github.com/hryvinskyi
+ */
+-->
+<!--
+    The admin UI kit's stylesheet, for pages that ask for it. A page opts in with
+    <update handle="hryvinskyi_admin_ui"/> and puts class="hui" on the element that encloses its markup; no page
+    loads the kit without asking. Magento merges a file's update handles before the file's own content, so a page
+    that declares this update in the same layout file as its own <css> gets the kit's stylesheet first and overrides
+    a kit rule at equal weight by order.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Hryvinskyi_AdminUi::css/admin-ui.css"/>
+    </head>
+</page>

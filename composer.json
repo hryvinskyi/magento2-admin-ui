@@ -1,0 +1,26 @@
+{
+    "name": "hryvinskyi/magento2-admin-ui",
+    "description": "A shared look for Magento 2 admin screens: one opt-in stylesheet of hui-* components (buttons, cards, notices, fields, controls, badges, status, code blocks, lists, disclosures) on themeable custom properties, with its own typeface",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Volodymyr Hryvinskyi",
+            "email": "volodymyr@hryvinskyi.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "magento/framework": "*",
+        "magento/module-backend": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Hryvinskyi\\AdminUi\\": ""
+        }
+    }
+}
