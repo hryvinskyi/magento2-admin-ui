@@ -94,20 +94,20 @@
     --hui-line-mid: #d6d6d6;
     --hui-line-strong: #adadad;
 
-    --hui-accent: #1e6fd9;
-    --hui-accent-hover: #1559b3;
-    --hui-accent-hover-line: #1559b3;
-    --hui-accent-ink: #1559b3;
-    --hui-accent-bg: #f5f9fe;
-    --hui-accent-tile: #e8f0fc;
+    --hui-accent: #3b63fb;
+    --hui-accent-hover: #274dea;
+    --hui-accent-hover-line: #274dea;
+    --hui-accent-ink: #1d3ecf;
+    --hui-accent-bg: #f4f6ff;
+    --hui-accent-tile: #e5ebff;
 
-    --hui-own-bg: #eef4fd;
-    --hui-own-line: #b9d2f5;
-    --hui-own-ink: #134a9a;
+    --hui-own-bg: #eef2ff;
+    --hui-own-line: #c3d0fe;
+    --hui-own-ink: #1d3ecf;
 
-    --hui-ok: #2d9d78;
-    --hui-ok-dot: #2d9d78;
-    --hui-ok-ink: #12805c;
+    --hui-ok: #008f5d;
+    --hui-ok-dot: #008f5d;
+    --hui-ok-ink: #007a4d;
     --hui-ok-bg: #e6f5ef;
     --hui-ok-line: #a8dcc6;
 
@@ -121,15 +121,15 @@
     --hui-error-bg: #fdeeee;
     --hui-error-line: #f1c0c0;
 
-    --hui-focus: #007bdb;
-    --hui-focus-glow: #68a8e0;
-    --hui-link: #007bdb;
+    --hui-focus: #3b63fb;
+    --hui-focus-glow: #9fb3fd;
+    --hui-link: #274dea;
 
     --hui-button-line: #b3b3b3;
     --hui-button-hover: #f0f0f0;
     --hui-button-hover-line: #8e8e8e;
-    --hui-switch-on: #1e6fd9;
-    --hui-switch-on-disabled: #a9c8f0;
+    --hui-switch-on: #3b63fb;
+    --hui-switch-on-disabled: #b5c4fd;
     --hui-switch-off: #d6d6d6;
     --hui-switch-off-line: #b3b3b3;
 
@@ -562,9 +562,10 @@
     min-width: 240px;
 }
 
+/* The icon, the text and an action share one centre line, so a one-line notice reads level with its button. */
 .hui-notice {
     gap: 10px;
-    align-items: flex-start;
+    align-items: center;
     padding: 10px 14px;
     font-size: 13px;
     line-height: 1.5;
@@ -577,7 +578,10 @@
 
 .hui-notice__action {
     flex: none;
-    align-self: center;
+}
+
+.hui-notice > svg {
+    flex: none;
 }
 
 .hui-strip__icon,

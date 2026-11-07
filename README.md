@@ -7,6 +7,17 @@ the kit never loads it.
 
 The module has no PHP logic: a layout handle, a stylesheet and three font files.
 
+## Screenshots
+
+The kit on three admin screens of other modules: the MCP Server page, the GA4 setup wizard and a configuration
+field.
+
+![The MCP Server page drawn with the kit: connection and install cards](docs/images/mcp-server.png)
+
+![The GA4 Data Layer setup wizard drawn with the kit](docs/images/setup-wizard.png)
+
+![A tag-list configuration field drawn with the kit](docs/images/configuration-fields.png)
+
 ## Requirements
 
 - PHP 8.1 or higher

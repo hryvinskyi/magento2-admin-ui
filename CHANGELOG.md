@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-11-07
+
+### Changed
+- A brighter blue palette: the accent is `#3b63fb` (with its hover, ink, background and tile, the
+  "own" row tokens, the switch's on track, the focus ring and links), and the positive colour is `#008f5d` with
+  `#007a4d` for text.
+- A notice (`hui-notice`) centres its icon, text and action on one line, so a one-line notice reads level with its
+  button.
+
 ## [1.0.0] - 2026-11-06
 
 ### Added
