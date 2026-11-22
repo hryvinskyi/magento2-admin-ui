@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) 2026. Volodymyr Hryvinskyi. All rights reserved.
+ * Author: Volodymyr Hryvinskyi <volodymyr@hryvinskyi.com>
+ * GitHub: https://github.com/hryvinskyi
+ */
+-->
+<!--
+    An admin page that hosts one Preact island. A page takes <update handle="hryvinskyi_admin_ui_island"/> in its own
+    layout and opens the island page view model with its island in its controller, before it returns the page result.
+    The kit's stylesheet is linked in the head; the template links the island's own stylesheets after it, so an island
+    overrides a kit rule at equal weight by order. The page title stays: a page whose island draws its own heading
+    removes page.title in its own layout, and the kit's stylesheet keeps the header's actions at the right edge.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="hryvinskyi_admin_ui"/>
+    <body>
+        <referenceContainer name="content">
+            <block class="Magento\Backend\Block\Template" name="hryvinskyi.admin_ui.island"
+                   template="Hryvinskyi_AdminUi::island.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Hryvinskyi\AdminUi\ViewModel\IslandPage</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

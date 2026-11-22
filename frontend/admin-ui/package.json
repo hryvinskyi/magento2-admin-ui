@@ -1,0 +1,25 @@
+{
+    "name": "@hryvinskyi/admin-ui-kit",
+    "description": "Sources of the admin UI kit's browser half: the Preact components drawn in the kit's hui-* classes, the wording, the JSON client, the readers of the server's answers and the island start, built into view/adminhtml/web/js/admin-ui/ and published to the page as @hryvinskyi/admin-ui.",
+    "private": true,
+    "type": "module",
+    "engines": {
+        "node": ">=22.15"
+    },
+    "scripts": {
+        "build": "node scripts/build.mjs && node scripts/declarations.mjs",
+        "check": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.domain.json && tsc --noEmit -p test/fixtures/island/tsconfig.json",
+        "test": "node --import tsx --import ./test/setup-dom.ts --test 'src/**/*.test.{ts,tsx}' 'test/**/*.test.{ts,tsx}'",
+        "verify-build": "node scripts/verify-build.mjs"
+    },
+    "devDependencies": {
+        "@happy-dom/global-registrator": "21.0.4",
+        "@testing-library/preact": "3.2.4",
+        "@types/node": "26.6.3",
+        "esbuild": "0.28.2",
+        "happy-dom": "21.0.4",
+        "preact": "10.29.8",
+        "tsx": "4.23.15",
+        "typescript": "7.0.2"
+    }
+}

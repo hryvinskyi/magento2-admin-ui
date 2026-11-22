@@ -10,6 +10,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <module name="Hryvinskyi_AdminUi">
         <sequence>
+            <module name="Magento_Store"/>
             <module name="Magento_Backend"/>
         </sequence>
     </module>

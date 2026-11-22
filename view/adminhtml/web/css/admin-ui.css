@@ -23,10 +23,13 @@
  * wins over it.
  *
  * A page opts in with the layout handle `<update handle="hryvinskyi_admin_ui"/>` and the root class; no page loads
- * the kit without asking.
+ * the kit without asking. One rule, in the island section, styles the admin's own markup rather than a `hui-` class:
+ * it keeps the page header's actions at the right on a kit page that removes the platform's page title.
  *
  * Sections: typeface · tokens and base · buttons and links · cards, panels, columns · layout (stack, grid, actions)
- * · messages · fields · controls · badges · status panel · code · list · facts · disclosure · hidden.
+ * · messages · fields · controls · badges · status panel · code · list · facts · disclosure · island · text area ·
+ * segmented control · filter chips · tabs · module navigation · data table · pager · drawer · card states · state
+ * pill · progress bar · colour input · charts · store-view bar · code editor · hidden.
  *
  * The typeface, Source Sans 3 (SIL Open Font License 1.1, the text beside the files), is served from the module's own
  * static files: the latin subset in three weights, so the admin never asks a font service. Any glyph outside the
@@ -137,6 +140,18 @@
     --hui-code-ink: #ede7e1;
     --hui-code-muted: #bdb5ad;
     --hui-code-line: #403a35;
+    /* The code editor's colours, each at least 7:1 on --hui-code-bg; its line numbers, marked line, caret, selection. */
+    --hui-code-key: #ede7e1;
+    --hui-code-string: #c5dba4;
+    --hui-code-field: #a9bafd;
+    --hui-code-directive: #f0c987;
+    --hui-code-number: #f0c987;
+    --hui-code-punctuation: #bdb5ad;
+    --hui-code-gutter: #a39a91;
+    --hui-code-mark: rgba(226, 38, 38, .34);
+    --hui-code-mark-ink: #ffffff;
+    --hui-code-caret: #ffffff;
+    --hui-code-selection: rgba(169, 186, 253, .32);
 
     --hui-radius-card: 8px;
     --hui-radius-box: 6px;
@@ -145,6 +160,22 @@
 
     --hui-shadow-card: 0 1px 2px rgba(0, 0, 0, .05);
     --hui-shadow-knob: 0 1px 2px rgba(0, 0, 0, .3);
+
+    /* The chart series, in order: the accent, its light tint, then two greys. */
+    --hui-series-1: var(--hui-accent);
+    --hui-series-2: #a9bafd;
+    --hui-series-3: var(--hui-ink-soft);
+    --hui-series-4: var(--hui-line-mid);
+
+    --hui-drawer-width: 460px;
+    --hui-drawer-width-narrow: 420px;
+    --hui-drawer-layer: 900;
+    --hui-scrim: rgba(44, 44, 44, .32);
+    --hui-shadow-drawer: -12px 0 32px rgba(0, 0, 0, .16);
+    --hui-shadow-foot: 0 -4px 12px rgba(0, 0, 0, .05);
+    --hui-shadow-segment: 0 1px 2px rgba(0, 0, 0, .16);
+    --hui-swatch-ring: rgba(0, 0, 0, .15);
+    --hui-shadow-popover: 0 8px 24px rgba(0, 0, 0, .28);
 }
 
 .hui {
@@ -173,6 +204,27 @@
 .hui-icon--26 { width: 26px; height: 26px; }
 .hui-icon--28 { width: 28px; height: 28px; }
 .hui-icon--30 { width: 30px; height: 30px; }
+
+/*
+ * A glyph that only ever means "working" (the script's progress glyph, `hui-icon--spin`) turns while it is drawn,
+ * wherever it is: a status tile, a button, a card, a table row. A person who asks for reduced motion sees it still.
+ */
+.hui-icon--spin {
+    transform-origin: 50% 50%;
+    animation: hui-icon-spin 1s linear infinite;
+}
+
+@keyframes hui-icon-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hui-icon--spin {
+        animation: none;
+    }
+}
 
 .hui-sr-only {
     position: absolute;
@@ -220,16 +272,23 @@
  * Buttons and links
  * ------------------------------------------------------------------------------------------------------------ */
 
+/*
+ * One shape for every button: a 1px border and the box radius. A variant changes the colour of the border, the
+ * background and the text, never the width of the border or the radius, so buttons of different weight read as one
+ * family when they sit in one row. Primary, secondary and quiet are one height; tertiary is the compact size.
+ */
 .hui-button {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    padding: 8px 14px;
     font-family: var(--hui-font);
     font-size: 14px;
     font-weight: 600;
     line-height: 1.4;
     text-decoration: none;
-    border-radius: var(--hui-radius-pill);
+    border: 1px solid transparent;
+    border-radius: var(--hui-radius-box);
     cursor: pointer;
 }
 
@@ -248,9 +307,9 @@
 }
 
 .hui-button--primary {
-    padding: 9px 14px 9px 20px;
+    padding: 8px 14px 8px 20px;
     background: var(--hui-accent);
-    border: 2px solid var(--hui-accent);
+    border-color: var(--hui-accent);
 }
 
 /*
@@ -271,8 +330,7 @@
 }
 
 .hui-button--secondary {
-    padding: 8px 14px;
-    border: 2px solid var(--hui-button-line);
+    border-color: var(--hui-button-line);
 }
 
 .hui-button--secondary:hover:not(:disabled) {
@@ -281,9 +339,9 @@
 }
 
 .hui-button--tertiary {
-    padding: 6px 14px;
+    padding: 7px 14px;
     font-size: 13px;
-    border: 2px solid var(--hui-button-line);
+    border-color: var(--hui-button-line);
 }
 
 .hui-button--tertiary:hover:not(:disabled) {
@@ -292,8 +350,7 @@
 
 .hui-button--quiet {
     padding: 8px 12px;
-    border: 1px solid var(--hui-line-mid);
-    border-radius: var(--hui-radius-box);
+    border-color: var(--hui-line-mid);
 }
 
 .hui-button--secondary,
@@ -321,15 +378,14 @@
 }
 
 /*
- * A button in a row of fields: the fields' height, border width and radius, so it lines up with the input or select
- * beside it. The variant it is combined with keeps its colours, border colour included
- * (`hui-button hui-button--secondary hui-button--control`).
+ * A button in a row of fields: the fields' height and radius, so it lines up with the input or select beside it.
+ * It is the one button that does not take the box radius. The variant it is combined with keeps its colours,
+ * border colour included (`hui-button hui-button--secondary hui-button--control`).
  */
 .hui-button--control {
     height: 34px;
     padding: 0 12px;
     font-size: 14px;
-    border-width: 1px;
     border-radius: var(--hui-radius-control);
 }
 
@@ -432,6 +488,11 @@
     font-weight: 400;
     line-height: 1.45;
     color: var(--hui-muted);
+}
+
+/* A card whose rows run edge to edge straight under its head: no padded body, no rule of the head's own. */
+.hui-card--flush > .hui-card__head {
+    border-bottom: 0;
 }
 
 .hui-card__aside {
@@ -562,13 +623,47 @@
     min-width: 240px;
 }
 
-/* The icon, the text and an action share one centre line, so a one-line notice reads level with its button. */
+/*
+ * The glyph sits on the text's first line, however many lines the text wraps to, and a one-line notice reads level
+ * with its button. `--hui-notice-leading` is the notice's line height, from which the glyph's place is measured.
+ * A browser without `:has()` keeps the glyph, the text and an action on one centre line.
+ */
 .hui-notice {
+    --hui-notice-leading: 1.5;
     gap: 10px;
     align-items: center;
     padding: 10px 14px;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: var(--hui-notice-leading);
+}
+
+@supports selector(:has(*)) {
+    .hui-notice {
+        align-items: flex-start;
+    }
+
+    /*
+     * The text and an action share a baseline: a one-line notice reads level with a button taller than its line, and
+     * a longer one starts level with it.
+     */
+    .hui-notice > .hui-notice__text,
+    .hui-notice > .hui-notice__action {
+        align-self: baseline;
+    }
+
+    /* The glyph's box is at least one line tall, and the glyph is centred in it: centred on the first line. */
+    .hui-notice > svg {
+        min-height: calc(var(--hui-notice-leading) * 1em);
+    }
+
+    /*
+     * Beside a tertiary action the first line moves down to the button's baseline, by half the difference between
+     * the button's height (13px text at the buttons' 1.4 line height, 7px padding and a 1px border above and below)
+     * and the line's; the glyph moves down with it.
+     */
+    .hui-notice:has(> .hui-notice__action.hui-button--tertiary, > .hui-notice__action > .hui-button--tertiary) > svg {
+        margin-top: calc((13px * 1.4 + 16px - var(--hui-notice-leading) * 1em) / 2);
+    }
 }
 
 .hui-notice__text {
@@ -620,6 +715,30 @@
 [data-tone='error'] > .hui-strip__icon,
 [data-tone='error'] > .hui-notice__icon {
     color: var(--hui-error);
+}
+
+/* A strip that reports what just happened ends in a small close button. */
+.hui-strip__dismiss {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--hui-radius-box);
+    cursor: pointer;
+}
+
+.hui-strip__dismiss,
+.hui-strip__dismiss:is(:hover, :focus, :active) {
+    background: none;
+    color: var(--hui-ink-soft);
+}
+
+.hui-strip__dismiss:hover {
+    background: rgba(0, 0, 0, 0.06);
 }
 
 /* An informational notice among fields on a grey ground: something that is true but asks for nothing. */
@@ -1486,6 +1605,1443 @@
     .hui-disclosure__summary::before {
         transition: none;
     }
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Island
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * The line the server prints inside an island's root until the island's script replaces it. When the island cannot
+ * start, the root's failure text takes its place on the same line.
+ */
+.hui-island__loading {
+    margin: 0;
+    padding: 24px 30px;
+    font-size: 14px;
+    color: var(--hui-muted);
+}
+
+/*
+ * The admin's page header on a kit page. A page whose island draws its own heading removes the platform's page
+ * title; the header's left column then renders nothing, and its actions column (search, notifications, the user
+ * menu), a grid column floated left, would sit at the left edge. Floated right, the actions keep the place they have
+ * beside a title, and the header keeps the admin's own padding and height. With the title printed the actions column
+ * is not the header's first child and the rule does not apply.
+ */
+.page-header > .page-header-actions:first-child {
+    float: right;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Text area
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A text of several lines (`hui-input hui-input--area`, with a width modifier): as high as its `rows`, and the person
+ * may drag it higher. `hui-area` stacks it over its count line (`hui-area__count`), which takes the warning tone in
+ * the limit's last tenth (`data-state="near"`) and the error tone past it (`over`).
+ */
+.hui-area {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 100%;
+}
+
+.hui-input--area {
+    height: auto;
+    min-height: 34px;
+    padding: 7px 10px;
+    line-height: 1.45;
+    resize: vertical;
+}
+
+.hui-area__count {
+    font-size: 12px;
+    color: var(--hui-muted);
+}
+
+[data-state='near'].hui-area__count {
+    font-weight: 600;
+    color: var(--hui-warn-ink);
+}
+
+[data-state='over'].hui-area__count {
+    font-weight: 600;
+    color: var(--hui-error-ink);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Segmented control
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * One choice among a few short options in one bar: a `role="group"` of buttons, the chosen one `aria-pressed="true"`
+ * and raised. A locked group carries `aria-disabled="true"` and is dimmed; its buttons are disabled. An option may
+ * hold a glyph (`hui-icon`) before its label.
+ */
+.hui-segmented {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 2px;
+    background: var(--hui-neutral);
+    border-radius: var(--hui-radius-box);
+}
+
+.hui-segmented[aria-disabled='true'] {
+    opacity: .6;
+}
+
+.hui-segmented__option {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-family: var(--hui-font);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    border: 0;
+    border-radius: var(--hui-radius-control);
+    cursor: pointer;
+}
+
+.hui-segmented__option,
+.hui-segmented__option:is(:hover, :focus, :active) {
+    background: transparent;
+    color: var(--hui-muted);
+}
+
+.hui-segmented__option:hover:not(:disabled) {
+    color: var(--hui-ink);
+}
+
+[aria-pressed='true'].hui-segmented__option,
+[aria-pressed='true'].hui-segmented__option:is(:hover, :focus, :active) {
+    background: var(--hui-surface);
+    color: var(--hui-ink);
+    box-shadow: var(--hui-shadow-segment);
+}
+
+.hui-segmented__option:disabled {
+    cursor: default;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Filter chips
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * Rounded toggle buttons above a list, in a wrapping row (`hui-chips`, a named `role="group"`): a label, an optional
+ * count (`hui-chip__count`) and glyph. Idle chips are white and a pressed one (`aria-pressed="true"`) takes the
+ * accent tint; `data-tone="warning"` tints an idle chip in the warning colours, and `data-tone="error"` a pressed one
+ * in the error colours. `hui-chip--control` is as high as an input, for a chip in a row of controls.
+ */
+.hui-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.hui-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 12px;
+    font-family: var(--hui-font);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    border: 1px solid var(--hui-line-mid);
+    border-radius: var(--hui-radius-pill);
+    cursor: pointer;
+}
+
+.hui-chip,
+.hui-chip:is(:hover, :focus, :active) {
+    background: var(--hui-surface);
+    color: var(--hui-ink-soft);
+    border-color: var(--hui-line-mid);
+}
+
+[aria-pressed='true'].hui-chip,
+[aria-pressed='true'].hui-chip:is(:hover, :focus, :active) {
+    background: var(--hui-accent-bg);
+    color: var(--hui-accent-ink);
+    border-color: var(--hui-accent);
+}
+
+[data-tone='warning'].hui-chip:not([aria-pressed='true']) {
+    background: var(--hui-warn-bg);
+    color: var(--hui-warn-ink);
+    border-color: var(--hui-warn-line);
+}
+
+[data-tone='error'][aria-pressed='true'].hui-chip {
+    background: var(--hui-error-bg);
+    color: var(--hui-error-ink);
+    border-color: var(--hui-error);
+}
+
+.hui-chip:disabled {
+    opacity: .5;
+    cursor: default;
+}
+
+.hui-chip--control {
+    height: 34px;
+}
+
+.hui-chip__count {
+    font-weight: 400;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Row menu
+ *
+ * A 34px glyph button at the end of a row and the menu it opens under its right edge: a 210px white list of
+ * actions with their glyphs, a destructive one in the error colour.
+ * ------------------------------------------------------------------------------------------------------------ */
+
+.hui-menu {
+    position: relative;
+    display: inline-flex;
+}
+
+.hui-menu__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--hui-radius-box);
+    cursor: pointer;
+}
+
+.hui-menu__button,
+.hui-menu__button:is(:hover, :focus, :active) {
+    background: none;
+    color: var(--hui-ink-soft);
+}
+
+.hui-menu__button:hover,
+.hui-menu__button[aria-expanded='true'] {
+    background: var(--hui-canvas);
+}
+
+.hui-menu__list {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    width: 210px;
+    padding: 5px 0;
+    background: var(--hui-surface);
+    border: 1px solid var(--hui-line-mid);
+    border-radius: var(--hui-radius-box);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+.hui-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 0;
+    font-family: var(--hui-font);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: left;
+    cursor: pointer;
+}
+
+.hui-menu__item,
+.hui-menu__item:is(:hover, :focus, :active) {
+    background: none;
+    color: var(--hui-ink);
+}
+
+.hui-menu__item:is(:hover, :focus) {
+    background: var(--hui-canvas);
+}
+
+.hui-menu__item[data-tone='danger'],
+.hui-menu__item[data-tone='danger']:is(:hover, :focus, :active) {
+    color: var(--hui-error-ink);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Tabs
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * Tabs that switch the content of one card (`role="tablist"`): each tab underlined in the accent colour when
+ * selected (`aria-selected="true"`), with a count beside its label (`hui-tabs__count`; `data-tone="accent"` fills it
+ * for a count of things waiting). The panel under them is `hui-tabpanel`.
+ */
+.hui-tabs {
+    display: flex;
+    gap: 2px;
+}
+
+.hui-tabs__tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 10px 11px;
+    font-family: var(--hui-font);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    cursor: pointer;
+}
+
+.hui-tabs__tab,
+.hui-tabs__tab:is(:hover, :focus, :active) {
+    background: none;
+    color: var(--hui-ink-soft);
+    border-bottom-color: transparent;
+}
+
+.hui-tabs__tab:hover {
+    color: var(--hui-ink);
+}
+
+[aria-selected='true'].hui-tabs__tab,
+[aria-selected='true'].hui-tabs__tab:is(:hover, :focus, :active) {
+    font-weight: 700;
+    color: var(--hui-ink);
+    border-bottom-color: var(--hui-accent);
+}
+
+.hui-tabs__count,
+.hui-modnav__count {
+    padding: 0 7px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 18px;
+    background: var(--hui-neutral);
+    border-radius: 9px;
+    color: var(--hui-muted);
+}
+
+[data-tone='accent'].hui-tabs__count {
+    background: var(--hui-accent);
+    color: var(--hui-on-accent);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Module navigation
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * The row of links under a module's page header (`<nav class="hui-modnav" aria-label>`): real links, the current
+ * page marked `aria-current="page"` and underlined in the accent colour, a waiting count beside a link
+ * (`hui-modnav__count`). The page gives the bar its padding and background.
+ */
+.hui-modnav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    border-bottom: 1px solid var(--hui-line);
+}
+
+.hui-modnav__link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 10px 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+}
+
+.hui-modnav__link:is(:link, :visited, :hover, :focus, :active) {
+    color: var(--hui-ink-soft);
+    text-decoration: none;
+}
+
+.hui-modnav__link:is(:hover, :focus-visible) {
+    color: var(--hui-ink);
+}
+
+[aria-current='page'].hui-modnav__link {
+    font-weight: 700;
+    border-bottom-color: var(--hui-accent);
+}
+
+[aria-current='page'].hui-modnav__link:is(:link, :visited, :hover, :focus, :active) {
+    color: var(--hui-ink);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Module page
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * The frame every page of a module draws (`hui-page`): the header (`__header`) with the module's glyph tile
+ * (`__tile`), the module's name above the page's (`__module`, `__title` in `__heading`) and the page's actions
+ * (`__actions`), then the module navigation, then the main column (`__main`). The frame is a size container named
+ * `hui-page`: it is narrow at 900 px or less of its own width, whatever the window, and a page's own narrow rules ask
+ * `@container hui-page (max-width: 900px)`.
+ */
+.hui-page {
+    container: hui-page / inline-size;
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    overflow: hidden;
+    background: var(--hui-canvas);
+    border: 1px solid var(--hui-line);
+    border-radius: var(--hui-radius-card);
+}
+
+.hui-page__header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 30px;
+    background: var(--hui-surface);
+}
+
+.hui-page__brand {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.hui-page__tile {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--hui-accent);
+    border-radius: var(--hui-radius-card);
+    color: var(--hui-on-accent);
+}
+
+.hui-page__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hui-page__module {
+    margin: 0;
+    font-size: 12px;
+    color: var(--hui-muted);
+}
+
+.hui-page__title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--hui-ink);
+}
+
+.hui-page > .hui-modnav {
+    padding: 0 22px;
+    background: var(--hui-surface);
+    border-top: 1px solid var(--hui-line-faint);
+}
+
+.hui-page__main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 24px 32px 40px;
+}
+
+@container hui-page (max-width: 900px) {
+    .hui-page__main {
+        padding: 22px 24px 36px;
+    }
+
+    .hui-page__main .hui-columns {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Data table
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A list drawn as a table: ARIA table roles on a grid whose tracks the table declares once in
+ * `--hui-table-columns`, and in `--hui-table-columns-narrow` for a container under 960 px. Rows (`hui-table__row`,
+ * the heading row `--head`) hold cells (`hui-table__cell`, `data-align="end"` for numbers).
+ *
+ * - A row that opens a drawer (`data-target="true"`) holds a plain-looking button in its first cell
+ *   (`hui-table__open`) and a chevron at its end (`hui-table__chevron`); it takes the accent tint on hover, while
+ *   its drawer is open (`data-open="true"`) and while it is ticked (`data-selected="true"`).
+ * - `data-flag="error"` or `"warning"` draws an edge in that colour on a row that needs action.
+ * - A first column of checkboxes (`hui-table__cell--check`, `hui-table__check`) ticks rows.
+ * - A group row (`hui-table__group`) spans the table with its toggle (`hui-table__group-toggle`: label, count,
+ *   aside).
+ * - Placeholder rows (`hui-table__row--skeleton`, bars `hui-table__bone`) stand in while the rows load.
+ */
+.hui-table {
+    container-type: inline-size;
+}
+
+.hui-table__row {
+    display: grid;
+    grid-template-columns: var(--hui-table-columns);
+    align-items: center;
+    font-size: 13px;
+    line-height: 1.45;
+    background: var(--hui-surface);
+    border-top: 1px solid var(--hui-line-faint);
+}
+
+@container (max-width: 959px) {
+    .hui-table__row {
+        grid-template-columns: var(--hui-table-columns-narrow, var(--hui-table-columns));
+    }
+}
+
+.hui-table__row--head {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    background: var(--hui-subtle);
+    border-top: 0;
+    color: var(--hui-muted);
+}
+
+.hui-table__cell {
+    min-width: 0;
+    padding: 10px 12px;
+    overflow-wrap: anywhere;
+}
+
+.hui-table__row > .hui-table__cell:first-child {
+    padding-left: 22px;
+}
+
+.hui-table__row > .hui-table__cell--check {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 10px 10px;
+}
+
+[data-align='end'].hui-table__cell {
+    text-align: right;
+}
+
+.hui-table__check {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--hui-accent);
+    cursor: pointer;
+}
+
+[data-target='true'].hui-table__row {
+    cursor: pointer;
+}
+
+[data-target='true'].hui-table__row:hover,
+[data-open='true'].hui-table__row,
+[data-selected='true'].hui-table__row {
+    background: var(--hui-accent-bg);
+}
+
+[data-flag='error'].hui-table__row {
+    box-shadow: inset 3px 0 0 var(--hui-error);
+}
+
+[data-flag='warning'].hui-table__row {
+    box-shadow: inset 3px 0 0 var(--hui-warn);
+}
+
+.hui-table__open {
+    display: block;
+    width: 100%;
+    padding: 0;
+    font: inherit;
+    text-align: left;
+    border: 0;
+    border-radius: 0;
+    cursor: pointer;
+}
+
+.hui-table__open,
+.hui-table__open:is(:hover, :focus, :active) {
+    background: none;
+    color: inherit;
+}
+
+.hui-table__chevron {
+    display: flex;
+    align-items: center;
+    color: var(--hui-muted);
+}
+
+.hui-table__group {
+    background: var(--hui-well);
+    border-top: 1px solid var(--hui-line);
+}
+
+.hui-table__group-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 22px 9px 16px;
+    font-family: var(--hui-font);
+    font-size: 13px;
+    line-height: 1.45;
+    text-align: left;
+    border: 0;
+    border-radius: 0;
+    cursor: pointer;
+}
+
+.hui-table__group-toggle,
+.hui-table__group-toggle:is(:hover, :focus, :active) {
+    background: var(--hui-well);
+    color: var(--hui-ink);
+}
+
+.hui-table__group-toggle > .hui-icon {
+    color: var(--hui-muted);
+}
+
+.hui-table__group-label {
+    font-weight: 700;
+}
+
+.hui-table__group-count {
+    color: var(--hui-muted);
+}
+
+.hui-table__group-aside {
+    margin-left: auto;
+}
+
+.hui-table__row--skeleton {
+    padding: 5px 0;
+}
+
+.hui-table__bone {
+    display: block;
+    height: 10px;
+    background: var(--hui-line-faint);
+    border-radius: 5px;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Pager
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * The line under a paged list: the range shown (`hui-pager__range`, a polite status) and the previous and next
+ * buttons (`hui-pager__button`, a chevron each, named by `aria-label`); a button that leads nowhere is
+ * `aria-disabled="true"` and dimmed, and stays focusable. The page gives the line its padding and background.
+ */
+.hui-pager {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--hui-ink-soft);
+}
+
+.hui-pager__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--hui-line-mid);
+    border-radius: var(--hui-radius-box);
+    cursor: pointer;
+}
+
+.hui-pager__button,
+.hui-pager__button:is(:hover, :focus, :active) {
+    background: var(--hui-surface);
+    color: var(--hui-ink-soft);
+    border-color: var(--hui-line-mid);
+}
+
+.hui-pager__button:hover:not([aria-disabled='true']) {
+    background: var(--hui-canvas);
+}
+
+[aria-disabled='true'].hui-pager__button {
+    opacity: .5;
+    cursor: default;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Drawer
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A panel over the right edge of the page (`hui-drawer`, fixed over the whole viewport): a scrim
+ * (`hui-drawer__scrim`) and the `role="dialog"` panel (`hui-drawer__panel`), `--hui-drawer-width` wide (460 px;
+ * `--hui-drawer-width-narrow`, 420 px, on a narrow screen; the whole width on a small one). Its head (eyebrow, title
+ * — `--code` in monospace —, a slot under it, Close) and its foot stay; the body (`hui-drawer__body`) scrolls. The
+ * foot's destructive action (`hui-drawer__destructive`, a link button) sits at its far end in the error colour.
+ * Focus, Escape and the scrim's click need the kit's script.
+ */
+.hui-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: var(--hui-drawer-layer);
+}
+
+.hui-drawer__scrim {
+    position: absolute;
+    inset: 0;
+    background: var(--hui-scrim);
+}
+
+.hui-drawer__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    width: min(100%, var(--hui-drawer-width));
+    background: var(--hui-surface);
+    box-shadow: var(--hui-shadow-drawer);
+    outline: none;
+}
+
+@media (max-width: 1100px) {
+    .hui-drawer__panel {
+        width: min(100%, var(--hui-drawer-width-narrow));
+    }
+}
+
+@media (max-width: 560px) {
+    .hui-drawer__panel {
+        width: 100%;
+    }
+}
+
+.hui-drawer__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 14px 14px 24px;
+    border-bottom: 1px solid var(--hui-line);
+}
+
+.hui-drawer__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 0;
+    padding-top: 6px;
+}
+
+.hui-drawer__eyebrow {
+    font-size: 12px;
+    color: var(--hui-muted);
+}
+
+.hui-drawer__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--hui-ink);
+    overflow-wrap: anywhere;
+}
+
+.hui-drawer__title.hui-drawer__title--code {
+    font-family: var(--hui-mono);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.hui-drawer__close {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--hui-radius-box);
+    cursor: pointer;
+}
+
+.hui-drawer__close,
+.hui-drawer__close:is(:hover, :focus, :active) {
+    background: none;
+    color: var(--hui-ink-soft);
+}
+
+.hui-drawer__close:hover {
+    background: var(--hui-canvas);
+}
+
+.hui-drawer__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0;
+    padding: 18px 24px 22px;
+    overflow: auto;
+}
+
+.hui-drawer__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border-top: 1px solid var(--hui-line);
+    box-shadow: var(--hui-shadow-foot);
+}
+
+.hui-button--link.hui-drawer__destructive {
+    margin-left: auto;
+    font-size: 13px;
+}
+
+.hui-button--link.hui-drawer__destructive,
+.hui-button--link.hui-drawer__destructive:is(:hover, :focus, :active) {
+    color: var(--hui-error-ink);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Card states
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * What a card shows where its content would be when there is none: a round glyph tile, a title, a line and an
+ * optional action, centred. `data-tone="error"` (could not load, with `role="alert"`) colours the tile in the error
+ * tone; nothing yet and nothing matches keep it grey.
+ */
+.hui-cardstate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 48px 22px 52px;
+    text-align: center;
+}
+
+.hui-cardstate__tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--hui-neutral);
+    border-radius: 50%;
+    color: var(--hui-muted);
+}
+
+[data-tone='error'].hui-cardstate .hui-cardstate__tile {
+    background: var(--hui-error-bg);
+    color: var(--hui-error);
+}
+
+.hui-cardstate__title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.hui-cardstate__text {
+    max-width: 400px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--hui-ink-soft);
+    text-wrap: pretty;
+}
+
+.hui-cardstate__action {
+    margin-top: 6px;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * State pill
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A short state in a table cell, a glyph (`hui-pill__icon`) and a word: `data-tone="error"` is a filled pill in the
+ * error tint; `ok` and `muted` are plain muted lines, `ok` with its glyph in the positive colour. `hui-pill--filled`
+ * makes an `ok` pill filled in the positive tint and a `muted` one filled in grey, for verdicts set side by side.
+ */
+.hui-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--hui-muted);
+}
+
+[data-tone='error'].hui-pill,
+.hui-pill--filled {
+    padding: 2px 9px 2px 6px;
+    font-weight: 600;
+    border-radius: 11px;
+}
+
+[data-tone='error'].hui-pill {
+    background: var(--hui-error-bg);
+    color: var(--hui-error-ink);
+}
+
+[data-tone='ok'].hui-pill .hui-pill__icon {
+    color: var(--hui-ok);
+}
+
+[data-tone='ok'].hui-pill--filled {
+    background: var(--hui-ok-bg);
+    color: var(--hui-ok-ink);
+}
+
+[data-tone='ok'].hui-pill--filled .hui-pill__icon {
+    color: currentColor;
+}
+
+[data-tone='muted'].hui-pill--filled {
+    background: var(--hui-neutral);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Progress bar
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A `role="progressbar"` track with its fill (`hui-progress__fill`, as wide as the value's share); the fill takes
+ * the accent, or the warning or error colour by `data-tone`.
+ */
+.hui-progress {
+    height: 8px;
+    overflow: hidden;
+    background: var(--hui-line-faint);
+    border-radius: 4px;
+}
+
+.hui-progress__fill {
+    height: 100%;
+    background: var(--hui-accent);
+    border-radius: 4px;
+}
+
+[data-tone='warning'].hui-progress .hui-progress__fill {
+    background: var(--hui-warn);
+}
+
+[data-tone='error'].hui-progress .hui-progress__fill {
+    background: var(--hui-error);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Colour input
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A colour typed as `#` and six digits (`hui-colour__input`, monospace) beside a round swatch
+ * (`hui-colour__swatch`) that shows the colour once the text is one, and a hatched blank (`data-empty="true"`)
+ * until then. The message under an invalid colour is a field error line.
+ */
+.hui-colour {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.hui-colour__swatch {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--hui-swatch-ring);
+}
+
+[data-empty='true'].hui-colour__swatch {
+    background: repeating-linear-gradient(45deg, var(--hui-line-mid) 0 4px, var(--hui-surface) 4px 8px);
+}
+
+.hui-colour__input {
+    width: 104px;
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Charts
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * Two charts in the series colours (`data-series="1"` … `"4"` → `--hui-series-1` … `--hui-series-4`), each a
+ * `role="img"` named by its summary and followed by the same numbers in a `hui-sr-only` table:
+ *
+ * - `hui-stackbar`: one bar of parts (`hui-stackbar__part`, as wide as their `flex-grow`); with no part it is an
+ *   empty track. Its legend (`hui-chart__legend`) gives each part (`hui-chart__entry`) a swatch and name
+ *   (`hui-chart__swatch`, `hui-chart__name`), its share (`hui-chart__share`) and its value (`hui-chart__value`).
+ * - `hui-daybars`: a bar per day (`hui-daybars__bar`, as high as its share of the highest), split into parts from
+ *   the bottom up (`hui-daybars__part`), with the days' labels under them (`hui-daybars__labels`) and an inline
+ *   legend (`hui-chart__legend--inline`) when there are several series. With `data-highlighting="true"`, the bars
+ *   take the second colour and the day marked `data-highlight="true"` the first.
+ */
+.hui-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+.hui-stackbar {
+    display: flex;
+    gap: 2px;
+    height: 14px;
+    overflow: hidden;
+    border-radius: 7px;
+}
+
+.hui-stackbar:empty {
+    background: var(--hui-line-faint);
+}
+
+.hui-stackbar__part {
+    flex: 1 1 0;
+    min-width: 2px;
+}
+
+[data-series='1']:is(.hui-stackbar__part, .hui-daybars__part, .hui-chart__swatch) {
+    background: var(--hui-series-1);
+}
+
+[data-series='2']:is(.hui-stackbar__part, .hui-daybars__part, .hui-chart__swatch) {
+    background: var(--hui-series-2);
+}
+
+[data-series='3']:is(.hui-stackbar__part, .hui-daybars__part, .hui-chart__swatch) {
+    background: var(--hui-series-3);
+}
+
+[data-series='4']:is(.hui-stackbar__part, .hui-daybars__part, .hui-chart__swatch) {
+    background: var(--hui-series-4);
+}
+
+.hui-chart__legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px 16px;
+}
+
+.hui-chart__legend--inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+}
+
+.hui-chart__entry {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.hui-chart__name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--hui-ink-soft);
+}
+
+.hui-chart__swatch {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+
+.hui-chart__share {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.hui-chart__value {
+    font-size: 12px;
+    color: var(--hui-muted);
+}
+
+.hui-daybars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 132px;
+    padding-top: 4px;
+    border-bottom: 1px solid var(--hui-line);
+}
+
+.hui-daybars__bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1px;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 3px 3px 0 0;
+}
+
+.hui-daybars__part {
+    flex: 0 1 0;
+    min-height: 1px;
+}
+
+[data-highlighting='true'].hui-daybars .hui-daybars__part {
+    background: var(--hui-series-2);
+}
+
+[data-highlighting='true'].hui-daybars [data-highlight='true'] .hui-daybars__part {
+    background: var(--hui-series-1);
+}
+
+.hui-daybars__labels {
+    display: flex;
+    gap: 3px;
+}
+
+.hui-daybars__label {
+    flex: 1;
+    min-width: 0;
+    font-size: 11px;
+    text-align: center;
+    white-space: nowrap;
+    color: var(--hui-muted);
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Store-view bar
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A bar under a page's navigation that chooses the store view the page shows: a label with its glyph
+ * (`hui-storebar__label`), a strong select of automatic width, and a muted line saying what the choice means
+ * (`hui-storebar__line`). On a narrow screen the line goes under the select.
+ */
+.hui-storebar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+    padding: 10px 30px;
+    font-family: var(--hui-font);
+    background: var(--hui-surface);
+    border-bottom: 1px solid var(--hui-line);
+}
+
+.hui-storebar__label {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--hui-ink-soft);
+}
+
+.hui-storebar__line {
+    flex: 1;
+    min-width: 260px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--hui-muted);
+}
+
+@media (max-width: 900px) {
+    .hui-storebar {
+        padding: 10px 24px;
+    }
+
+    .hui-storebar__line {
+        flex-basis: 100%;
+        min-width: 0;
+    }
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Code editor
+ * ------------------------------------------------------------------------------------------------------------ */
+
+/*
+ * A code editor on the code block's dark ground (`hui-code-editor`). Its body (`__body`) holds the gutter of line
+ * numbers (`__gutter`, `__numbers`, `__number`) and the frame (`__frame`): a transparent text area (`__input`) whose
+ * caret and selection show over the highlight layer (`__highlight`, a `__line` per line and a `__token` per coloured
+ * piece, `data-kind` naming its colour) drawn under it. Text area, highlight and the measuring copy (`__mirror`) share
+ * one font, size, line height and padding, so every character of the highlight sits under the same character typed;
+ * a line is exactly 20 px high in each. The script moves the highlight and the gutter as the text area scrolls.
+ * `data-marked="true"` on a line and its number marks it in the error colour. The list of choices (`__popover`) opens
+ * under the place a choice goes, light on the dark ground. The status bar (`__status`) under the body carries a
+ * message on its left (`__message`, `data-tone` ok | pending | error on the bar) and a hint on its right (`__hint`).
+ */
+.hui-code-editor {
+    min-width: 0;
+    font-family: var(--hui-font);
+}
+
+.hui-code-editor__body {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    font-family: var(--hui-mono);
+    font-size: 12px;
+    line-height: 20px;
+    background: var(--hui-code-bg);
+    border: 1px solid var(--hui-code-line);
+    border-radius: var(--hui-radius-box);
+    color: var(--hui-code-ink);
+    color-scheme: dark;
+}
+
+.hui-code-editor__body:not(:last-child) {
+    border-radius: var(--hui-radius-box) var(--hui-radius-box) 0 0;
+}
+
+.hui-code-editor__body:focus-within {
+    outline: 2px solid var(--hui-focus);
+    outline-offset: -2px;
+}
+
+/* No height of its own: the row is as high as the text area, and the numbers beyond it are cut off. */
+.hui-code-editor__gutter {
+    height: 0;
+    min-height: 100%;
+    padding: 12px 0;
+    overflow: hidden;
+    user-select: none;
+}
+
+.hui-code-editor__numbers {
+    min-width: 46px;
+}
+
+.hui-code-editor__number {
+    height: 20px;
+    padding: 0 14px 0 8px;
+    text-align: right;
+    color: var(--hui-code-gutter);
+}
+
+[data-marked='true'].hui-code-editor__number {
+    font-weight: 700;
+    background: var(--hui-code-mark);
+    color: var(--hui-code-mark-ink);
+}
+
+.hui-code-editor__frame {
+    position: relative;
+    min-width: 0;
+}
+
+.hui-code-editor__clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.hui-code-editor__highlight,
+.hui-code-editor__input,
+.hui-code-editor__mirror {
+    padding: 12px 22px 12px 0;
+    font: inherit;
+    line-height: 20px;
+    white-space: pre;
+    tab-size: 4;
+}
+
+/* The right padding sits on each line instead, so a marked line's background reaches the edge. */
+.hui-code-editor__highlight {
+    width: max-content;
+    min-width: 100%;
+    padding-right: 0;
+}
+
+.hui-code-editor__line,
+.hui-code-editor__mirror-line {
+    height: 20px;
+}
+
+.hui-code-editor__line {
+    padding-right: 22px;
+}
+
+[data-marked='true'].hui-code-editor__line {
+    background: var(--hui-code-mark);
+}
+
+[data-kind='key'].hui-code-editor__token { color: var(--hui-code-key); }
+[data-kind='string'].hui-code-editor__token { color: var(--hui-code-string); }
+[data-kind='field'].hui-code-editor__token { color: var(--hui-code-field); }
+[data-kind='directive'].hui-code-editor__token { color: var(--hui-code-directive); }
+[data-kind='number'].hui-code-editor__token { color: var(--hui-code-number); }
+[data-kind='punctuation'].hui-code-editor__token { color: var(--hui-code-punctuation); }
+
+.hui-code-editor__mirror {
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+}
+
+.hui-code-editor__input {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    overflow: auto;
+    overflow-wrap: normal;
+    color: transparent;
+    caret-color: var(--hui-code-caret);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    outline: none;
+    resize: none;
+}
+
+/* The body draws the focus ring around the gutter and the text together. */
+.hui-code-editor__input:focus-visible {
+    outline: none;
+}
+
+.hui-code-editor__input::selection {
+    color: transparent;
+    background: var(--hui-code-selection);
+}
+
+.hui-code-editor__popover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    width: 330px;
+    max-width: 100%;
+    padding: 4px 0;
+    font-family: var(--hui-font);
+    line-height: 1.4;
+    background: var(--hui-surface);
+    border: 1px solid var(--hui-line-mid);
+    border-radius: var(--hui-radius-box);
+    box-shadow: var(--hui-shadow-popover);
+    color: var(--hui-ink);
+    color-scheme: light;
+}
+
+.hui-code-editor__list {
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.hui-code-editor__option {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: baseline;
+    padding: 5px 12px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+[aria-selected='true'].hui-code-editor__option {
+    background: var(--hui-accent-bg);
+}
+
+.hui-code-editor__option-label {
+    font-family: var(--hui-mono);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+[aria-selected='true'].hui-code-editor__option .hui-code-editor__option-label {
+    font-weight: 700;
+}
+
+.hui-code-editor__option-detail {
+    font-size: 12px;
+    color: var(--hui-muted);
+}
+
+.hui-code-editor__popover-foot {
+    padding: 5px 12px 3px;
+    font-size: 11.5px;
+    border-top: 1px solid var(--hui-line-faint);
+    color: var(--hui-muted);
+}
+
+.hui-code-editor__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    padding: 10px 22px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    background: var(--hui-surface);
+    border: 1px solid var(--hui-line);
+    border-top: 0;
+    border-radius: 0 0 var(--hui-radius-box) var(--hui-radius-box);
+    color: var(--hui-ink-soft);
+}
+
+[data-tone='error'].hui-code-editor__status {
+    background: var(--hui-error-bg);
+    color: var(--hui-error-ink);
+}
+
+.hui-code-editor__message {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    min-width: 220px;
+}
+
+.hui-code-editor__status-icon {
+    color: var(--hui-muted);
+}
+
+[data-tone='ok'].hui-code-editor__status .hui-code-editor__status-icon {
+    color: var(--hui-ok);
+}
+
+[data-tone='error'].hui-code-editor__status .hui-code-editor__status-icon {
+    color: var(--hui-error);
+}
+
+.hui-code-editor__hint {
+    color: var(--hui-muted);
 }
 
 /* ------------------------------------------------------------------------------------------------------------

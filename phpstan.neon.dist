@@ -1,0 +1,12 @@
+parameters:
+    level: 10
+    paths:
+        - .
+    excludePaths:
+        - vendor (?)
+        - frontend/*/node_modules (?)
+    bootstrapFiles:
+        - ../../../../vendor/autoload.php
+        - ../../../../dev/tests/integration/framework/autoload.php
+    scanDirectories:
+        - ../../../../dev/tests/integration/framework

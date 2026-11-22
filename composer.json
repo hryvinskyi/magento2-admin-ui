@@ -1,8 +1,8 @@
 {
     "name": "hryvinskyi/magento2-admin-ui",
-    "description": "A shared look for Magento 2 admin screens: one opt-in stylesheet of hui-* components (buttons, cards, notices, fields, controls, badges, status, code blocks, lists, disclosures) on themeable custom properties, with its own typeface",
+    "description": "A shared look for Magento 2 admin screens: one opt-in stylesheet of hui-* components (buttons, cards, notices, fields, controls, badges, status, code blocks, lists, disclosures, tabs, chips, data tables, pager, drawer, charts) on themeable custom properties with its own typeface, the same parts as a Preact browser kit published as one ES module, and an admin page host that prints a Preact island with its import map",
     "type": "magento2-module",
-    "version": "1.1.0",
+    "version": "1.3.0",
     "license": "MIT",
     "authors": [
         {
@@ -12,8 +12,11 @@
     ],
     "require": {
         "php": "^8.1",
+        "ext-intl": "*",
         "magento/framework": "*",
-        "magento/module-backend": "*"
+        "magento/module-backend": "*",
+        "magento/module-store": "*",
+        "psr/log": "^2 || ^3"
     },
     "autoload": {
         "files": [

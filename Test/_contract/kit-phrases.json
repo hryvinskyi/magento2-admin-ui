@@ -1,0 +1,26 @@
+{
+    "keys": [
+        "kit.chart.share",
+        "kit.chart.values",
+        "kit.colour.invalid",
+        "kit.drawer.close",
+        "kit.failure.expired",
+        "kit.failure.forbidden",
+        "kit.pager.next",
+        "kit.pager.previous",
+        "kit.pager.range",
+        "kit.secret.keep",
+        "kit.secret.masked",
+        "kit.secret.replace",
+        "kit.secret.stored",
+        "kit.select.all",
+        "kit.select.row",
+        "kit.state.clear",
+        "kit.state.retry",
+        "kit.strip.dismiss",
+        "kit.switch.no",
+        "kit.switch.yes",
+        "kit.table.loading",
+        "kit.text.count"
+    ]
+}

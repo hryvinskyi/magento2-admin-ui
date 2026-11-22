@@ -1,0 +1,42 @@
+<?php
+/**
+ * Copyright (c) 2026. Volodymyr Hryvinskyi. All rights reserved.
+ * Author: Volodymyr Hryvinskyi <volodymyr@hryvinskyi.com>
+ * GitHub: https://github.com/hryvinskyi
+ */
+
+/**
+ * An island's mount point: its stylesheets, the root it renders into with the line shown while it loads and the line
+ * it shows when it cannot start, its document as JSON, then the import map and the entry module
+ *
+ * The root carries the kit's `hui` class, so the loading line is drawn in the kit's typeface and colours before any
+ * script runs. The markup ends with a line break, as every printed line does.
+ *
+ * @var \Magento\Backend\Block\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+$islandPage = $block->getData('view_model');
+if (!$islandPage instanceof \Hryvinskyi\AdminUi\ViewModel\IslandPage) {
+    throw new \LogicException('The island template needs the island page view model as "view_model".');
+}
+$role = $escaper->escapeHtmlAttr($islandPage->getName());
+?>
+<?php foreach ($islandPage->getStylesheets() as $stylesheet): ?>
+<link rel="stylesheet" href="<?= $escaper->escapeUrl($stylesheet) ?>">
+<?php endforeach; ?>
+<div data-role="<?= /* @noEscape escaped above */ $role ?>" class="<?=
+    $escaper->escapeHtmlAttr($islandPage->getRootClass())
+?>" data-failed-text="<?= $escaper->escapeHtmlAttr($islandPage->getFailedText()) ?>">
+    <p class="hui-island__loading" data-role="<?= /* @noEscape escaped above */ $role ?>-loading" role="status"><?=
+        $escaper->escapeHtml($islandPage->getLoadingText())
+    ?></p>
+    <script type="application/json" data-role="<?= /* @noEscape escaped above */ $role ?>-config"><?=
+        /* @noEscape JSON with < and > escaped, so no value can end the element */
+        $islandPage->getConfigJson()
+    ?></script>
+</div>
+<?= /* @noEscape the import map and the entry module, rendered by the platform's secure renderer */
+    $islandPage->getScripts()
+?>
+

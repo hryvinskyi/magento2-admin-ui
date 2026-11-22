@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) 2026. Volodymyr Hryvinskyi. All rights reserved.
+ * Author: Volodymyr Hryvinskyi <volodymyr@hryvinskyi.com>
+ * GitHub: https://github.com/hryvinskyi
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- The page host an admin page's island is printed by -->
+    <preference for="Hryvinskyi\AdminUi\Api\Page\ImportMapBuilderInterface"
+                type="Hryvinskyi\AdminUi\Model\Page\ImportMapBuilder"/>
+    <preference for="Hryvinskyi\AdminUi\Api\Page\ModuleScriptInterface"
+                type="Hryvinskyi\AdminUi\Model\Page\ModuleScript"/>
+    <preference for="Hryvinskyi\AdminUi\Api\Page\IslandPageInterface"
+                type="Hryvinskyi\AdminUi\ViewModel\IslandPage"/>
+    <preference for="Hryvinskyi\AdminUi\Api\Page\KitPhrasesInterface"
+                type="Hryvinskyi\AdminUi\Model\Page\KitPhrases"/>
+    <!-- Count texts in every plural form of the admin's language, by the CLDR rules ICU carries -->
+    <preference for="Hryvinskyi\AdminUi\Api\Page\PluralCategoriesInterface"
+                type="Hryvinskyi\AdminUi\Model\Page\IcuPluralCategories"/>
+    <preference for="Hryvinskyi\AdminUi\Api\Page\PluralPhrasesInterface"
+                type="Hryvinskyi\AdminUi\Model\Page\PluralPhrases"/>
+
+    <!-- The parts of a module page's island document: each module configures its own virtual types of these -->
+    <preference for="Hryvinskyi\AdminUi\Api\Page\KeyedAdminUrlInterface"
+                type="Hryvinskyi\AdminUi\Model\Page\KeyedAdminUrl"/>
+    <preference for="Hryvinskyi\AdminUi\Api\Page\AdminRoutesInterface"
+                type="Hryvinskyi\AdminUi\Model\Page\AdminRoutes"/>
+    <preference for="Hryvinskyi\AdminUi\Api\Page\ModuleNavigationInterface"
+                type="Hryvinskyi\AdminUi\Model\Page\ModuleNavigation"/>
+    <preference for="Hryvinskyi\AdminUi\Api\Page\PagePermissionsInterface"
+                type="Hryvinskyi\AdminUi\Model\Page\PagePermissions"/>
+    <preference for="Hryvinskyi\AdminUi\Api\Page\StoreViewListInterface"
+                type="Hryvinskyi\AdminUi\Model\Page\StoreViewList"/>
+
+    <!-- JSON printed into a page escapes < and >, so no value can end the element it is printed in -->
+    <type name="Hryvinskyi\AdminUi\Model\Page\ImportMapBuilder">
+        <arguments>
+            <argument name="serializer" xsi:type="object">Magento\Framework\Serialize\Serializer\JsonHexTag</argument>
+        </arguments>
+    </type>
+    <type name="Hryvinskyi\AdminUi\ViewModel\IslandPage">
+        <arguments>
+            <argument name="json" xsi:type="object">Magento\Framework\Serialize\Serializer\JsonHexTag</argument>
+        </arguments>
+    </type>
+</config>

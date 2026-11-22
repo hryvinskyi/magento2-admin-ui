@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) 2026. Volodymyr Hryvinskyi. All rights reserved.
+ * Author: Volodymyr Hryvinskyi <volodymyr@hryvinskyi.com>
+ * GitHub: https://github.com/hryvinskyi
+ */
+-->
+<ruleset name="Hryvinskyi_AdminUi">
+    <description>Magento 2 coding standard for this module.</description>
+    <arg name="extensions" value="php,phtml,xml,css,js"/>
+    <file>.</file>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/docs/*</exclude-pattern>
+    <exclude-pattern>*/frontend/*</exclude-pattern>
+    <exclude-pattern>*/view/adminhtml/web/js/admin-ui/*</exclude-pattern>
+    <rule ref="Magento2"/>
+</ruleset>
